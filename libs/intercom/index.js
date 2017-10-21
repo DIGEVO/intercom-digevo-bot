@@ -4,7 +4,7 @@ const Intercom = require('intercom-client');
 require('dotenv').config();
 
 const self = module.exports = {
-    client = new Intercom.Client({ token: process.env.TOKEN }),
+    client: new Intercom.Client({ token: process.env.TOKEN }),
 
     logIntoIntecom({ user_id = 0, name = '', conversationId = 0, body = '' }) {
         self.client.users
