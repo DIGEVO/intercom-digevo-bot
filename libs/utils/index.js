@@ -33,27 +33,27 @@ const self = module.exports = {
 
         if (channelId !== 'directline' || userId !== 'IntercomChannel') {
             logIntoIntecom({
-                user_id = userId,
-                name = self.getName(session.message),
-                conversationId = event.address.conversation.id,
-                body = session.message.text
+                user_id: userId,
+                name: self.getName(session.message),
+                conversationId: event.address.conversation.id,
+                body: session.message.text
             });
         }
     }
-//     ,
+    //     ,
 
-//     saveOutgoingMessageIntoIntercom: (event, next) => { 
+    //     saveOutgoingMessageIntoIntercom: (event, next) => { 
 
-//         /*
-// exports.LogOutgoingMessage = (event, next) => {
-//     try {
-//         event.bot_id = new ObjectID(process.env.BOT_ID);
-//         new OutMessageModel(event).save();
-//         next();
-//     } catch (error) {
-//         console.log(error)
-//     }
-// }
-//         */
-//     }
+    //         /*
+    // exports.LogOutgoingMessage = (event, next) => {
+    //     try {
+    //         event.bot_id = new ObjectID(process.env.BOT_ID);
+    //         new OutMessageModel(event).save();
+    //         next();
+    //     } catch (error) {
+    //         console.log(error)
+    //     }
+    // }
+    //         */
+    //     }
 };
