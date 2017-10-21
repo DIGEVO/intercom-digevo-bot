@@ -6,8 +6,8 @@ const self = module.exports = {
     outMsgFuns: [],
 
     initMiddleware: bot => bot.use({
-        botbuilder: processIncomingMessage,
-        send: processOutgoingMessage
+        botbuilder: self.processIncomingMessage,
+        send: self.processOutgoingMessage
     }),
 
     addIncomingMessageHandler: functionHandler =>
@@ -19,11 +19,11 @@ const self = module.exports = {
     ,
 
     processIncomingMessage(session, next) {
-        processMessages(session, next, self.inMsgFuns, 'incoming');
+        self.processMessages(session, next, self.inMsgFuns, 'incoming');
     },
 
     processOutgoingMessage(event, next) {
-        processMessages(event, next, self.outMsgFuns, 'outgoing');
+        self.processMessages(event, next, self.outMsgFuns, 'outgoing');
     },
 
     processMessages(param1, param2, arrFuns, msg) {
