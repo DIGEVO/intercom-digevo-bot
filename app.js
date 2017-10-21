@@ -9,6 +9,8 @@ const utils = require('./libs/utils');
 
 require('dotenv').config();
 
+const bot = botutils.initBot();
+
 middleware.initMiddleware(bot);
 middleware.addIncomingMessageHandler(utils.saveIncomingMessageIntoCache);
 middleware.addIncomingMessageHandler(utils.saveMessageIntoIntercom);
