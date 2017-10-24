@@ -2,8 +2,8 @@
 
 require('dotenv').config();
 
-const flow = require('../conversationflow');
-const Intercom = require('../intercom');
+const flow =        require('../conversationflow');
+const Intercom =    require('../intercom');
 
 const self = module.exports = {
     getName: message => message.user.name.split(" ", 1)[0]
@@ -27,33 +27,32 @@ const self = module.exports = {
         });
     },
 
-    saveMessageIntoIntercom: (session, next) => {
+    saveIncomingMessageIntoIntercom: (session, next) => {
         const channelId = session.message.address.channelId;
         const userId = session.message.user.id;
 
+        //console.log(JSON.stringify(session.dialogData));
+
         if (channelId !== 'directline' || userId !== 'IntercomChannel') {
-            logIntoIntecom({
+            Intercom.sendMessageToIntecom({
                 user_id: userId,
                 name: self.getName(session.message),
-                conversationId: event.address.conversation.id,
-                body: session.message.text
+                conversationId: session.message.address.conversation.id,
+                body: session.message.text,
+                firstMsg: session.dialogData
+            });
+        }
+    },
+
+    saveOutgoingMessageIntoIntercom: (event, next) => {
+        const channelId = event.address.channelId;
+        const userId = event.address.user.id;
+
+        if (channelId !== 'directline' || userId !== 'IntercomChannel') {
+            Intercom.replyMessageToIntercom({
+                user_id: userId,
+                body: event.text
             });
         }
     }
-    //     ,
-
-    //     saveOutgoingMessageIntoIntercom: (event, next) => { 
-
-    //         /*
-    // exports.LogOutgoingMessage = (event, next) => {
-    //     try {
-    //         event.bot_id = new ObjectID(process.env.BOT_ID);
-    //         new OutMessageModel(event).save();
-    //         next();
-    //     } catch (error) {
-    //         console.log(error)
-    //     }
-    // }
-    //         */
-    //     }
 };
