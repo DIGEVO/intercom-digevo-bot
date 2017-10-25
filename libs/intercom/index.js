@@ -5,23 +5,24 @@ const NodeCache = require('node-cache');
 const Q = require('q');
 require('dotenv').config();
 
-const Queue = require('../queue');
+// const Queue = require('../queue');
 
 const self = module.exports = {
     client: new Intercom.Client({ token: process.env.TOKEN }),
 
     cache: [],//[new NodeCache({ stdTTL: process.env.TTL })],
 
-    q: new Queue(),
+    //q: new Queue(),
 
     sendMessageToIntecom({ user_id = 0, name = '', conversationId = 0, body = '', firstMsg = false }) {
         if (firstMsg) {
-            self.client.conversations.list({ type: 'user', user_id: user_id, })
-                .then(c => self.replyMessage(c.body.conversations[0].id, body, user_id))
-                .catch(e => console.error(e));
+            // self.client.conversations.list({ type: 'user', user_id: user_id, })
+            //     .then(c => self.replyMessage(c.body.conversations[0].id, body, user_id))
+            //     .catch(e => console.error(e));
+            self.replyMessageToIntercom({ user_id: user_id, body: body, sender_id: user_id });
         } else {
             self
-                .countPages(self.client.conversations.list({ type: 'user', user_id: user_id, }), 0)
+                .countConversations(self.client.conversations.list({ type: 'user', user_id: user_id, }), 0)
                 .then(c => { self.cache[user_id] = c; return undefined; })
                 .then(() => self.createUser(user_id, name, conversationId))
                 .then(r => self.createMessage(r.body.id, body))
@@ -29,15 +30,15 @@ const self = module.exports = {
         }
     },
 
-    replyMessageToIntercom({ user_id = 0, body = '' }) {
+    replyMessageToIntercom({ user_id = 0, body = '', sender_id = process.env.BOT }) {
         const operation = () =>
-            self.countPages(self.client.conversations.list({ type: 'user', user_id: user_id, }), 0);
+            self.countConversations(self.client.conversations.list({ type: 'user', user_id: user_id, }), 0);
 
         const test = c => c > (self.cache[user_id] || Number.MAX_SAFE_INTEGER);
 
         self.retry(operation, test)
             .then(() => self.client.conversations.list({ type: 'user', user_id: user_id, }))
-            .then(c => self.replyMessage(c.body.conversations[0].id, body))
+            .then(c => self.replyMessage(c.body.conversations[0].id, body, sender_id))
             .catch(e => console.error(e));
     },
 
@@ -49,31 +50,37 @@ const self = module.exports = {
         })
     ,
 
-    createMessage: (id, body) => {
-        self.q.add(() => {
-            console.log('----------------------> createMessage');
-            self.client.messages.create({
-                from: { type: "user", id: id },
-                body: body
-            });
-        }
-        );
-    },
+    createMessage: (id, body) =>
+        // {
+        // self.q.add(() => {
+        //console.log('----------------------> createMessage '+ `${body}`);
+        self.client.messages.create({
+            from: { type: "user", id: id },
+            body: body
+        })
+    //;
+    // }
+    // );
+    //}
+    ,
 
-    replyMessage: (id, body, user_id = process.env.BOT) => {
-        self.q.add(() =>{
-            console.log('----------------------> replyMessage '+ `${body}`);
-            self.client.conversations
-                .reply({
-                    id: id,
-                    type: 'user',
-                    message_type: 'comment',
-                    body: body,
-                    user_id: user_id
-                });
-            }
-            );
-    },
+    replyMessage: (id, body, user_id = process.env.BOT) =>
+        //{
+        // self.q.add(() =>{
+        //     console.log('----------------------> replyMessage '+ `${body}`);
+        self.client.conversations
+            .reply({
+                id: id,
+                type: 'user',
+                message_type: 'comment',
+                body: body,
+                user_id: user_id
+            })
+    //;
+    // }
+    // );
+    // }
+    ,
 
     retry: (operation, test, delay = 1000) => {
         return operation()
@@ -83,12 +90,12 @@ const self = module.exports = {
 
     /*TODO se podría retornar arrastrar el ID de la 1ra conversación en todas las llamadas
         y retornarlo junto a la cantidad.*/
-    countPages: (promise, accumulator) => {
+    countConversations: (promise, accumulator) => {
         return promise.then(res => {
             if (!res.body.pages.next)
                 return accumulator + res.body.conversations.length;
             else
-                return self.countPages(self.client.nextPage(res.body.pages), accumulator + res.body.conversations.length);
+                return self.countConversations(self.client.nextPage(res.body.pages), accumulator + res.body.conversations.length);
         });
     }
 };

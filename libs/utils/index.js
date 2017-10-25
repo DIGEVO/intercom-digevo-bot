@@ -2,10 +2,13 @@
 
 require('dotenv').config();
 
-const flow =        require('../conversationflow');
-const Intercom =    require('../intercom');
+const flow = require('../conversationflow');
+const Intercom = require('../intercom');
+const Queue = require('../queue');
 
 const self = module.exports = {
+    q: new Queue(),
+
     getName: message => message.user.name.split(" ", 1)[0]
     ,
 
@@ -28,31 +31,36 @@ const self = module.exports = {
     },
 
     saveIncomingMessageIntoIntercom: (session, next) => {
-        const channelId = session.message.address.channelId;
-        const userId = session.message.user.id;
+        console.log('++++++++++++++++++++++++++ encolando saveIncomingMessageIntoIntercom');
+        self.q.add(async () => {
+            console.log('ejecutando ****************** saveIncomingMessageIntoIntercom ' + `${session.message.text}`);
+            const channelId = session.message.address.channelId;
+            const userId = session.message.user.id;
 
-        //console.log(JSON.stringify(session.dialogData));
-
-        if (channelId !== 'directline' || userId !== 'IntercomChannel') {
-            Intercom.sendMessageToIntecom({
-                user_id: userId,
-                name: self.getName(session.message),
-                conversationId: session.message.address.conversation.id,
-                body: session.message.text,
-                firstMsg: session.dialogData
-            });
-        }
+            if (channelId !== 'directline' || userId !== 'IntercomChannel') {
+                await Intercom.sendMessageToIntecom({
+                    user_id: userId,
+                    name: self.getName(session.message),
+                    conversationId: session.message.address.conversation.id,
+                    body: session.message.text,
+                    firstMsg: session.dialogData
+                });
+            }
+        });
     },
 
     saveOutgoingMessageIntoIntercom: (event, next) => {
         const channelId = event.address.channelId;
         const userId = event.address.user.id;
-
-        if (channelId !== 'directline' || userId !== 'IntercomChannel') {
-            Intercom.replyMessageToIntercom({
-                user_id: userId,
-                body: event.text
-            });
-        }
+        console.log('++++++++++++++++++++++++++ encolando saveOutgoingMessageIntoIntercom');
+        self.q.add(async () => {
+            console.log('ejecutando ****************** saveOutgoingMessageIntoIntercom ' + `${event.text}`);
+            if (channelId !== 'directline' || userId !== 'IntercomChannel') {
+                await Intercom.replyMessageToIntercom({
+                    user_id: userId,
+                    body: event.text
+                });
+            }
+        });
     }
 };

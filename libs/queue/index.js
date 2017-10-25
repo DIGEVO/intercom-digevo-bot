@@ -3,7 +3,12 @@
 class Queue {
     constructor() {
         this.jobs = [];
-        setInterval(() => (this.jobs.shift() || (()=>{}))(), 500);
+        setInterval(() => {
+            //(this.jobs.shift() || (()=>{}))()
+            const j = this.jobs.shift();
+            const t = j || (()=>{});
+            t();
+        }, 500);
     }
 
     add(task) {
