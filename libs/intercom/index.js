@@ -5,29 +5,54 @@ const NodeCache = require('node-cache');
 const Q = require('q');
 require('dotenv').config();
 
-// const Queue = require('../queue');
+const convCache = require('../cache');
 
 const self = module.exports = {
     client: new Intercom.Client({ token: process.env.TOKEN }),
 
-    cache: [],//[new NodeCache({ stdTTL: process.env.TTL })],
-
-    //q: new Queue(),
+    cache: [],
 
     sendMessageToIntecom({ user_id = 0, name = '', conversationId = 0, body = '', firstMsg = false }) {
         if (firstMsg) {
-            // self.client.conversations.list({ type: 'user', user_id: user_id, })
-            //     .then(c => self.replyMessage(c.body.conversations[0].id, body, user_id))
-            //     .catch(e => console.error(e));
-            self.replyMessageToIntercom({ user_id: user_id, body: body, sender_id: user_id });
+            return self.replyMessageToIntercom({ user_id: user_id, body: body, sender_id: user_id });
         } else {
-            self
+            return self
                 .countConversations(self.client.conversations.list({ type: 'user', user_id: user_id, }), 0)
                 .then(c => { self.cache[user_id] = c; return undefined; })
                 .then(() => self.createUser(user_id, name, conversationId))
-                .then(r => self.createMessage(r.body.id, body))
+                .then(r => self.createMessage(r.body.id, 'Iniciando conversación'))
+
+                .then(o => {
+                    const operation = () =>
+                        self.countConversations(self.client.conversations.list({ type: 'user', user_id: user_id, }), 0);
+
+                    const test = c => c > self.cache[user_id];
+
+                    return self.retry(operation, test)
+                        .catch(e => console.error(e));
+                })
+                .then(() => self.client.conversations.list({ type: 'user', user_id: user_id, }))
+                .then(res => {
+                    console.log(`////////////////////////// ${res.body.conversations[0].id}`);
+                    convCache.cache[user_id] = res.body.conversations[0].id;
+                    return res.body.conversations[0].id;
+                })
+                .then(id => self.replyMessage(id, body, user_id))
+
                 .catch(e => console.error(e));
         }
+    },
+
+    //TODO ver paginado...
+    getConversationSize(user_id) {
+        return self.client.conversations
+            .list({
+                type: 'user',
+                user_id: user_id,
+            })
+            .then(r => self.client.conversations.find(r.body.conversations[0]))
+            .then(c => c.body.conversation_parts.conversation_parts.length)
+            .catch(e => console.error(e));
     },
 
     replyMessageToIntercom({ user_id = 0, body = '', sender_id = process.env.BOT }) {
@@ -36,7 +61,7 @@ const self = module.exports = {
 
         const test = c => c > (self.cache[user_id] || Number.MAX_SAFE_INTEGER);
 
-        self.retry(operation, test)
+        return self.retry(operation, test)
             .then(() => self.client.conversations.list({ type: 'user', user_id: user_id, }))
             .then(c => self.replyMessage(c.body.conversations[0].id, body, sender_id))
             .catch(e => console.error(e));
@@ -51,35 +76,20 @@ const self = module.exports = {
     ,
 
     createMessage: (id, body) =>
-        // {
-        // self.q.add(() => {
-        //console.log('----------------------> createMessage '+ `${body}`);
         self.client.messages.create({
             from: { type: "user", id: id },
             body: body
         })
-    //;
-    // }
-    // );
-    //}
     ,
 
     replyMessage: (id, body, user_id = process.env.BOT) =>
-        //{
-        // self.q.add(() =>{
-        //     console.log('----------------------> replyMessage '+ `${body}`);
-        self.client.conversations
-            .reply({
-                id: id,
-                type: 'user',
-                message_type: 'comment',
-                body: body,
-                user_id: user_id
-            })
-    //;
-    // }
-    // );
-    // }
+        self.client.conversations.reply({
+            id: id,
+            type: 'user',
+            message_type: 'comment',
+            body: body,
+            user_id: user_id
+        })
     ,
 
     retry: (operation, test, delay = 1000) => {
