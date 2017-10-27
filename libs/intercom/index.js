@@ -7,7 +7,7 @@ require('dotenv').config();
 const self = module.exports = {
     client: new Intercom.Client({ token: process.env.TOKEN }),
 
-    createConversationIntoIntercom({ user_id = 0, name = '', conversationId = 0 }) {
+    createConversationIntoIntercom({ user_id = 0, name = '', conversationId = '' }) {
         return self
             .createUser(user_id, name, conversationId)
             .then(r => self.createMessage(r.body.id, 'Iniciando conversación'))
