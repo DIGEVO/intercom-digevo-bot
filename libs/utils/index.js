@@ -1,5 +1,7 @@
 'use strict';
 
+const Q = require('q');
+
 require('dotenv').config();
 
 const flow = require('../conversationflow');
@@ -7,9 +9,7 @@ const Intercom = require('../intercom');
 const Queue = require('../queue');
 
 const self = module.exports = {
-    q: new Queue(),
-
-    i: 0,
+    queue: new Queue(),
 
     getName: message => message.user.name.split(" ", 1)[0]
     ,
@@ -38,23 +38,18 @@ const self = module.exports = {
 
         if (channelId !== 'directline' || userId !== 'IntercomChannel') {
             if (!session.dialogData) {
-                self.i = 0;
+                self.queue.add(() => Intercom.createConversationIntoIntercom({
+                    user_id: userId,
+                    name: self.getName(session.message),
+                    conversationId: session.message.address.conversation.id
+                }));
             }
 
-            self.q.add({
-                userId: userId,
-                i: self.i++,
-                fn: () => {
-                    //  console.log(`in *************************** ${session.message.text}`);
-                    return Intercom.sendMessageToIntecom({
-                        user_id: userId,
-                        name: self.getName(session.message),
-                        conversationId: session.message.address.conversation.id,
-                        body: session.message.text,
-                        firstMsg: session.dialogData
-                    });
-                }
-            });
+            self.queue.add(() => Intercom.sendMessageToIntercom({
+                conversation_user_id: userId,
+                body: session.message.text,
+                sender_id: userId
+            }));
         }
     },
 
@@ -63,17 +58,10 @@ const self = module.exports = {
         const userId = event.address.user.id;
 
         if (channelId !== 'directline' || userId !== 'IntercomChannel') {
-            self.q.add({
-                userId: userId,
-                i: self.i++,
-                fn: () => {
-                    // console.log(`out *************************** ${event.text}`);
-                    return Intercom.replyMessageToIntercom({
-                        user_id: userId,
-                        body: event.text
-                    });
-                }
-            });
+            self.queue.add(() => Intercom.sendMessageToIntercom({
+                conversation_user_id: userId,
+                body: event.text
+            }));
         }
     }
 };
