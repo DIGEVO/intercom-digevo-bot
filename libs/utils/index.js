@@ -1,7 +1,5 @@
 'use strict';
 
-const Q = require('q');
-
 require('dotenv').config();
 
 const flow = require('../conversationflow');
