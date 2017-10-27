@@ -6,10 +6,10 @@ class Queue {
     constructor() {
         this.jobs = [];
 
-        setInterval(async function(jobs) {
-            const task = jobs.shift();
+        setInterval(async () => {
+            const task = this.jobs.shift();
             if (task) await task();
-        }, process.env.TIMEOUT, this.jobs);
+        }, process.env.TIMEOUT);
     }
 
     add(task) {
