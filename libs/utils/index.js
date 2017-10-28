@@ -9,7 +9,10 @@ const Queue = require('../queue');
 const self = module.exports = {
     queue: new Queue(),
 
-    getName: message => message.user.name.split(" ", 1)[0]
+    getName: message => {
+        console.log(JSON.stringify(message));
+        return message.user.name.split(" ", 1)[0];
+    }
     ,
 
     getGreetting: message => {
