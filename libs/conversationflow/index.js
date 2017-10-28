@@ -31,6 +31,7 @@ const self = module.exports = {
     },
 
     sendMessage(session) {
+        console.log(session.message.text);
         const msg = JSON.parse(session.message.text);
         const cacheData = self.cache.get(msg.userId) ||
             { paused: false, name: undefined, address: undefined };
