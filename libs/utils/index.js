@@ -10,7 +10,7 @@ const self = module.exports = {
     queue: new Queue(),
 
     getName: message => {
-        console.log(JSON.stringify(message));
+        console.log(JSON.stringify(message.user));
         return message.user.name.split(" ", 1)[0];
     }
     ,
