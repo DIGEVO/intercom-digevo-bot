@@ -32,7 +32,7 @@ const self = module.exports = {
 
     sendMessage(session) {
         const msg = JSON.parse(session.message.text);
-        console.log(`--------------> ${msg.userId}`);
+        console.log(`--------------> ${session.message.text}`);
         const cacheData = self.cache.get(msg.userId) ||
             { paused: false, name: undefined, address: undefined };
 
