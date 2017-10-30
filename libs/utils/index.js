@@ -30,7 +30,7 @@ const self = module.exports = {
             name: self.getName(session.message),
             address: session.message.address
         });
-        console.log(`${userId} - ${JSON.stringify(flow.cache.get(userId))}`);
+        console.log(`1 ${flow.cache.keys()}`);
     },
 
     saveIncomingMessageIntoIntercom: (session, next) => {
