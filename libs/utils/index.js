@@ -23,15 +23,16 @@ const self = module.exports = {
 
     saveIncomingMessageIntoCache: (session, next) => {
         const userId = session.message.user.id;
-        const cacheData = flow.cache.get(userId) || { paused: false };
+        //const cacheData = flow.cache.get(userId) || { paused: false };
+        const cacheData = flow.cache[userId] || { paused: false };
 
-        flow.cache.set(userId, {
+        flow.cache[userId] = {
             paused: cacheData.paused,
             name: self.getName(session.message),
             address: session.message.address
-        });
-        console.log(`1 ${flow.cache.keys()}`);
-        console.log(`1.1 ${flow.cache.keys().map(k => JSON.stringify(flow.cache.get(k)))}`);
+        };
+      //  console.log(`1 ${flow.cache.keys()}`);
+       // console.log(`1.1 ${flow.cache.keys().map(k => JSON.stringify(flow.cache.get(k)))}`);
     },
 
     saveIncomingMessageIntoIntercom: (session, next) => {
