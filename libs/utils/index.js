@@ -32,6 +32,18 @@ const self = module.exports = {
         };
     },
 
+    checkPauseState: (session, next) => {
+        const userId = session.message.user.id;
+        const cacheData = flow.cache[userId] || { paused: false };
+        
+        const businessOnStack = session.sessionState.callstack
+            .map(d => d.id)
+            .some(id => id.include(process.env.BUSINESSDIALOG));
+
+        if(cacheData.paused && businessOnStack)
+            session.endDialog();
+    },
+
     saveIncomingMessageIntoIntercom: (session, next) => {
         const channelId = session.message.address.channelId;
         const userId = session.message.user.id;
