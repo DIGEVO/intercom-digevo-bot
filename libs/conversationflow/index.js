@@ -18,7 +18,8 @@ const self = module.exports = {
             self.sendMessage(session);
             next();
         } else {
-            const cacheData = self.cache.get(userId) || { paused: false };
+            //const cacheData = self.cache.get(userId) || { paused: false };
+            const cacheData = self.cache[userId] || { paused: false };
             if (!cacheData.paused)
                 session.beginDialog(process.env.BUSINESSDIALOG);
             else
