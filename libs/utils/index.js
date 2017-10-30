@@ -36,15 +36,17 @@ const self = module.exports = {
         const userId = session.message.user.id;
         const cacheData = flow.cache[userId] || { paused: false };
 
-        const businessOnStack = session.sessionState.callstack
-            .map(d => d.id)
-            .some(id => id.include(process.env.BUSINESSDIALOG));
+        console.log(`${JSON.stringify(cacheData)} - ${session.sessionState.callstack.map(d => JSON.stringify(d)).join('\n')}`);
 
-        if (cacheData.paused && businessOnStack) {
-            console.log('--------------------> ok!');
-            //session.endConversation();
-            session.cancelDialog(process.env.BUSINESSDIALOG);
-        }
+        // const businessOnStack = session.sessionState.callstack
+        //     .map(d => d.id)
+        //     .some(id => id.include(process.env.BUSINESSDIALOG));
+
+        // if (cacheData.paused && businessOnStack) {
+        //     console.log('--------------------> ok!');
+        //     //session.endConversation();
+        //     session.cancelDialog(process.env.BUSINESSDIALOG);
+        // }
     },
 
     saveIncomingMessageIntoIntercom: (session, next) => {
