@@ -31,6 +31,7 @@ const self = module.exports = {
             address: session.message.address
         });
         console.log(`1 ${flow.cache.keys()}`);
+        console.log(`1.1 ${flow.cache.keys().map(k => flow.cache.get(k))}`);
     },
 
     saveIncomingMessageIntoIntercom: (session, next) => {

@@ -33,6 +33,7 @@ const self = module.exports = {
     sendMessage(session) {
         const msg = JSON.parse(session.message.text);
         console.log(`2 ${self.cache.keys()}`);
+        console.log(`2.1 ${self.cache.keys().map(k => self.cache.get(k))}`);
         const cacheData = self.cache.get(msg.userId) ||
             { paused: false, name: undefined, address: undefined };
 
