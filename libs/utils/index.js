@@ -43,7 +43,7 @@ const self = module.exports = {
             .some(id => id.includes(process.env.BUSINESSDIALOG));
 
         if (cacheData.paused && businessOnStack) {
-           // console.log('--------------------> ok!');
+            console.log('--------------------> ok!');
             //session.endConversation();
             session.cancelDialog(process.env.BUSINESSDIALOG);
         }
