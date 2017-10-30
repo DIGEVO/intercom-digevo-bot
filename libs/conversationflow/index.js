@@ -18,7 +18,7 @@ const self = module.exports = {
             self.sendMessage(session);
             next();
         } else {
-            const cacheData = self.cache.get(userId) || { paused: false };
+            const cacheData = module.exports.cache.get(userId) || { paused: false };
             if (!cacheData.paused)
                 session.beginDialog(process.env.BUSINESSDIALOG);
             else
@@ -32,13 +32,13 @@ const self = module.exports = {
 
     sendMessage(session) {
         const msg = JSON.parse(session.message.text);
-        console.log(`2 ${self.cache.keys()}`);
-        console.log(`2.1 ${self.cache.keys().map(k => self.cache.get(k))}`);
-        const cacheData = self.cache.get(msg.userId) ||
+        console.log(`2 ${module.exports.cache.keys()}`);
+        console.log(`2.1 ${module.exports.cache.keys().map(k => module.exports.cache.get(k))}`);
+        const cacheData = module.exports.cache.get(msg.userId) ||
             { paused: false, name: undefined, address: undefined };
 
         cacheData.paused = msg.paused;
-        self.cache.set(msg.userId, cacheData);
+        module.exports.cache.set(msg.userId, cacheData);
 
         let errorMsg = undefined;
 
