@@ -5,7 +5,7 @@ const NodeCache = require('node-cache');
 require('dotenv').config();
 
 const self = module.exports = {
-    cache: [],//new NodeCache({ stdTTL: process.env.TTL }),
+    cache: [],
 
     getWaterfall: () => [self.firstStep, self.finalStep]
     ,
@@ -18,7 +18,6 @@ const self = module.exports = {
             self.sendMessage(session);
             next();
         } else {
-            //const cacheData = self.cache.get(userId) || { paused: false };
             const cacheData = self.cache[userId] || { paused: false };
             if (!cacheData.paused)
                 session.beginDialog(process.env.BUSINESSDIALOG);
@@ -33,15 +32,10 @@ const self = module.exports = {
 
     sendMessage(session) {
         const msg = JSON.parse(session.message.text);
-        // console.log(`2 ${self.cache.keys()}`);
-        //   console.log(`2.1 ${self.cache.keys().map(k => JSON.stringify(self.cache.get(k)))}`);
-        // const cacheData = self.cache.get(msg.userId) ||
-        //     { paused: false, name: undefined, address: undefined };
         const cacheData = self.cache[msg.userId] ||
             { paused: false, name: undefined, address: undefined };
 
         cacheData.paused = msg.paused;
-        //self.cache.set(msg.userId, cacheData);
         self.cache[msg.userId] = cacheData;
 
         let errorMsg = undefined;
