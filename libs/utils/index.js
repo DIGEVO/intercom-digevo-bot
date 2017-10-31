@@ -45,7 +45,8 @@ const self = module.exports = {
         if (cacheData.paused && businessOnStack) {
             console.log('--------------------> ok!');
 
-            session.endConversation();
+            //session.endConversation();
+            session.endDialog();
             //session.endConversation();
             // session.cancelDialog(process.env.BUSINESSDIALOG);
             // session.sessionState.callstack
