@@ -44,8 +44,14 @@ const self = module.exports = {
 
         if (cacheData.paused && businessOnStack) {
             console.log('--------------------> ok!');
+
+            session.endConversation();
             //session.endConversation();
-            session.cancelDialog(process.env.BUSINESSDIALOG);
+            // session.cancelDialog(process.env.BUSINESSDIALOG);
+            // session.sessionState.callstack
+            //     .map(d => d.id)
+            //     .slice(1)
+            //     .forEach(id => session.cancelDialog(id));
         }
     },
 
