@@ -11,11 +11,11 @@ require('dotenv').config();
 
 const bot = botutils.initBot();
 
-middleware.initMiddleware(bot);
-middleware.addIncomingMessageHandler(utils.saveIncomingMessageIntoCache);
-middleware.addIncomingMessageHandler(utils.checkPauseState);
-middleware.addIncomingMessageHandler(utils.saveIncomingMessageIntoIntercom);
-middleware.addOutgoingMessageHandler(utils.saveOutgoingMessageIntoIntercom);
+// middleware.initMiddleware(bot);
+// middleware.addIncomingMessageHandler(utils.saveIncomingMessageIntoCache);
+// middleware.addIncomingMessageHandler(utils.checkPauseState);
+// middleware.addIncomingMessageHandler(utils.saveIncomingMessageIntoIntercom);
+// middleware.addOutgoingMessageHandler(utils.saveOutgoingMessageIntoIntercom);
 
 bot.dialog('/', flow.getWaterfall());
 
